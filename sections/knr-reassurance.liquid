@@ -1,0 +1,53 @@
+{%- if section.blocks.size > 0 -%}
+  <section class="knr-reassurance">
+    <div class="knr-shell knr-reassurance__grid">
+      {%- for block in section.blocks -%}
+        <article class="knr-reassurance__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.icon != blank -%}
+            {{ block.settings.icon | image_url: width: 96 | image_tag: loading: 'lazy', class: 'knr-reassurance__icon', alt: block.settings.title }}
+          {%- endif -%}
+          <h2>{{ block.settings.title | escape }}</h2>
+          {%- if block.settings.text != blank -%}
+            <p>{{ block.settings.text | escape }}</p>
+          {%- endif -%}
+        </article>
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "KNR reassurance",
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Reassurance item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Made with care"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Editable reassurance content managed from the theme editor."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "KNR reassurance"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,111 @@
+<footer class="knr-footer">
+  <div class="knr-footer__services">
+    <div>
+      <strong>{{ section.settings.service_1_title | escape }}</strong>
+      <span>{{ section.settings.service_1_text | escape }}</span>
+    </div>
+    <div>
+      <strong>{{ section.settings.service_2_title | escape }}</strong>
+      <span>{{ section.settings.service_2_text | escape }}</span>
+    </div>
+    <div>
+      <strong>{{ section.settings.service_3_title | escape }}</strong>
+      <span>{{ section.settings.service_3_text | escape }}</span>
+    </div>
+    <div>
+      <strong>{{ section.settings.service_4_title | escape }}</strong>
+      <span>{{ section.settings.service_4_text | escape }}</span>
+    </div>
+  </div>
+
+  <div class="knr-footer__links">
+    <div>
+      <a class="knr-footer__small-link" href="{{ section.settings.discover_link | default: routes.root_url }}">{{ section.settings.discover_heading | escape }}</a>
+      {%- if section.settings.discover_menu != blank -%}
+        {%- for link in section.settings.discover_menu.links -%}
+          <a href="{{ link.url }}">{{ link.title | escape }}</a>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+    <div>
+      <span class="knr-footer__small-link">{{ section.settings.service_heading | escape }}</span>
+      {%- if section.settings.service_menu != blank -%}
+        {%- for link in section.settings.service_menu.links -%}
+          <a href="{{ link.url }}">{{ link.title | escape }}</a>
+        {%- endfor -%}
+      {%- else -%}
+        <a href="{{ routes.search_url }}">Service client</a>
+        <a href="{{ routes.cart_url }}">Mon compte</a>
+        <a href="{{ routes.root_url }}">Suivre ma commande</a>
+        <a href="{{ routes.root_url }}">Livraison & retour</a>
+        <a href="{{ routes.root_url }}">FAQ</a>
+      {%- endif -%}
+    </div>
+    <div>
+      <span class="knr-footer__small-link">{{ section.settings.legal_heading | escape }}</span>
+      <a href="{{ routes.root_url }}">Légal & Transparence</a>
+      <a href="{{ routes.root_url }}">Conditions générales de vente</a>
+      <a href="{{ routes.root_url }}">Mentions légales</a>
+      <a href="{{ routes.root_url }}">Politique des cookies</a>
+      <a href="{{ routes.root_url }}">Accessibilité</a>
+    </div>
+    <div class="knr-footer__about">
+      <span class="knr-footer__small-link">{{ section.settings.about_heading | escape }}</span>
+      <p>{{ section.settings.about_text | escape }}</p>
+      <strong>{{ section.settings.cert_title | escape }}</strong>
+      <span>{{ section.settings.cert_text | escape }}</span>
+    </div>
+  </div>
+
+  <a href="{{ routes.root_url }}" class="knr-footer__brand">{{ section.settings.brand_text | default: shop.name | escape }}</a>
+
+  <div class="knr-footer__bottom">
+    <div>
+      <span>{{ section.settings.country_label | escape }}</span>
+      <span>{{ section.settings.language_label | escape }}</span>
+    </div>
+    <small>&copy; {{ 'now' | date: '%Y' }} {{ shop.name | escape }}. {{ section.settings.rights_text | escape }}</small>
+    <div class="knr-footer__social" aria-label="{{ section.settings.social_label | escape }}">
+      <a href="{{ section.settings.instagram_url | default: routes.root_url }}">ig</a>
+      <a href="{{ section.settings.tiktok_url | default: routes.root_url }}">tk</a>
+      <a href="{{ section.settings.linkedin_url | default: routes.root_url }}">in</a>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "KNR footer",
+  "settings": [
+    { "type": "text", "id": "service_1_title", "label": "Service 1 title", "default": "LIVRAISON OFFERTE" },
+    { "type": "text", "id": "service_1_text", "label": "Service 1 text", "default": "Livraison offerte dès 60 € d'achat en France métropolitaine." },
+    { "type": "text", "id": "service_2_title", "label": "Service 2 title", "default": "RETOURS GRATUITS" },
+    { "type": "text", "id": "service_2_text", "label": "Service 2 text", "default": "Retours acceptés jusqu'à 30 jours après réception." },
+    { "type": "text", "id": "service_3_title", "label": "Service 3 title", "default": "PAIEMENT SÉCURISÉ" },
+    { "type": "text", "id": "service_3_text", "label": "Service 3 text", "default": "Paiement 100 % sécurisé par carte bancaire, PayPal ou virement." },
+    { "type": "text", "id": "service_4_title", "label": "Service 4 title", "default": "SERVICE CLIENT" },
+    { "type": "text", "id": "service_4_text", "label": "Service 4 text", "default": "Du lundi au vendredi de 9h à 18h par email et téléphone." },
+    { "type": "text", "id": "discover_heading", "label": "Discover heading", "default": "Découvrir" },
+    { "type": "url", "id": "discover_link", "label": "Discover link" },
+    { "type": "link_list", "id": "discover_menu", "label": "Discover menu", "default": "main-menu" },
+    { "type": "text", "id": "service_heading", "label": "Service heading", "default": "Service client" },
+    { "type": "link_list", "id": "service_menu", "label": "Service menu" },
+    { "type": "text", "id": "legal_heading", "label": "Legal heading", "default": "Légal & Transparence" },
+    { "type": "text", "id": "about_heading", "label": "About heading", "default": "A propos de Maison Célestine" },
+    { "type": "text", "id": "about_text", "label": "About text", "default": "Maison Célestine est une marque de soins anti-âge haut de gamme formulés avec des actifs rares et des technologies brevetées." },
+    { "type": "text", "id": "cert_title", "label": "Certification title", "default": "Certifié COSMOS ORGANIC par ECOCERT Greenlife" },
+    { "type": "text", "id": "cert_text", "label": "Certification text", "default": "Voir le certificat" },
+    { "type": "text", "id": "brand_text", "label": "Brand text", "default": "maison célestine" },
+    { "type": "text", "id": "country_label", "label": "Country label", "default": "France EUR" },
+    { "type": "text", "id": "language_label", "label": "Language label", "default": "Français" },
+    { "type": "text", "id": "rights_text", "label": "Rights text", "default": "Tous droits réservés." },
+    { "type": "text", "id": "social_label", "label": "Social label", "default": "Social links" },
+    { "type": "url", "id": "instagram_url", "label": "Instagram URL" },
+    { "type": "url", "id": "tiktok_url", "label": "TikTok URL" },
+    { "type": "url", "id": "linkedin_url", "label": "LinkedIn URL" }
+  ],
+  "presets": [
+    { "name": "KNR footer" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,95 @@
+<section class="knr-before-after" data-knr-before-after>
+  <div class="knr-shell knr-before-after__layout">
+    <div class="knr-before-after__copy">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="knr-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+      {%- endif -%}
+      <h2>{{ section.settings.heading | escape }}</h2>
+      {%- if section.settings.text != blank -%}
+        <div class="rte">{{ section.settings.text }}</div>
+      {%- endif -%}
+    </div>
+
+    <div class="knr-before-after__media">
+      <div class="knr-before-after__stage">
+        {%- if section.settings.before_image != blank -%}
+          {{ section.settings.before_image | image_url: width: 1100 | image_tag: loading: 'lazy', class: 'knr-before-after__image', alt: section.settings.before_label }}
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'knr-before-after__placeholder' }}
+        {%- endif -%}
+        <div class="knr-before-after__after" data-knr-after-layer>
+          {%- if section.settings.after_image != blank -%}
+            {{ section.settings.after_image | image_url: width: 1100 | image_tag: loading: 'lazy', class: 'knr-before-after__image', alt: section.settings.after_label }}
+          {%- else -%}
+            {{ 'image' | placeholder_svg_tag: 'knr-before-after__placeholder' }}
+          {%- endif -%}
+        </div>
+        <span class="knr-before-after__label knr-before-after__label--before">{{ section.settings.before_label | escape }}</span>
+        <span class="knr-before-after__label knr-before-after__label--after">{{ section.settings.after_label | escape }}</span>
+      </div>
+      <label class="knr-before-after__range-label" for="BeforeAfterRange-{{ section.id }}">
+        {{ section.settings.range_label | escape }}
+      </label>
+      <input id="BeforeAfterRange-{{ section.id }}" type="range" min="0" max="100" value="50" data-knr-before-after-range>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "KNR before after",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Before / After"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Results that feel refined"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Use the image pickers and labels to manage this section without editing code.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "before_image",
+      "label": "Before image"
+    },
+    {
+      "type": "image_picker",
+      "id": "after_image",
+      "label": "After image"
+    },
+    {
+      "type": "text",
+      "id": "before_label",
+      "label": "Before label",
+      "default": "Before"
+    },
+    {
+      "type": "text",
+      "id": "after_label",
+      "label": "After label",
+      "default": "After"
+    },
+    {
+      "type": "text",
+      "id": "range_label",
+      "label": "Range accessible label",
+      "default": "Compare before and after"
+    }
+  ],
+  "presets": [
+    {
+      "name": "KNR before after"
+    }
+  ]
+}
+{% endschema %}

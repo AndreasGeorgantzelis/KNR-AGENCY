@@ -1,0 +1,616 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign current_collection = collection
+  if current_collection == blank
+    assign current_collection = product.collections | first
+  endif
+  assign display_title = product.title
+  if section.settings.title_override != blank
+    assign display_title = section.settings.title_override
+  endif
+  assign display_price = current_variant.price | money
+  if section.settings.price_override != blank
+    assign display_price = section.settings.price_override
+  endif
+  assign gallery_image_1 = product.images[0]
+  assign gallery_image_2 = product.images[1]
+  assign gallery_image_3 = product.images[2]
+  assign gallery_image_4 = product.images[3]
+  assign rating_parts = section.settings.rating_text | split: '·'
+  assign rating_score = rating_parts[0] | strip
+  assign rating_count = rating_parts[1] | strip
+  assign ritual_collection = collections[section.settings.ritual_collection]
+  if ritual_collection == blank
+    assign ritual_collection = current_collection
+  endif
+-%}
+
+<section
+  class="knr-product"
+  data-knr-product
+  data-section-id="{{ section.id }}"
+  data-money-format="{{ shop.money_format | strip_html | escape }}"
+  data-currency="{{ cart.currency.iso_code | default: shop.currency | escape }}"
+>
+  <div class="knr-product__hero">
+    <div class="knr-product__media-grid" aria-label="{{ section.settings.gallery_label | escape }}">
+      <div class="knr-product__media knr-product__media--hero">
+        {%- if gallery_image_1 != blank -%}
+          {{ gallery_image_1 | image_url: width: 2200 | image_tag: widths: '720, 960, 1200, 1600, 2200', loading: 'eager', alt: gallery_image_1.alt | default: product.title }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+      <div class="knr-product__media-pair">
+        <div class="knr-product__media">
+          {%- if gallery_image_2 != blank -%}
+            {{ gallery_image_2 | image_url: width: 1200 | image_tag: widths: '480, 720, 960, 1200', loading: 'eager', alt: gallery_image_2.alt | default: product.title }}
+          {%- else -%}
+            {{ 'product-2' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </div>
+        <div class="knr-product__media">
+          {%- if gallery_image_3 != blank -%}
+            {{ gallery_image_3 | image_url: width: 1200 | image_tag: widths: '480, 720, 960, 1200', loading: 'eager', alt: gallery_image_3.alt | default: product.title }}
+          {%- else -%}
+            {{ 'product-3' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+
+    <aside class="knr-product__card" aria-label="{{ section.settings.product_card_label | escape }}">
+      <nav class="knr-breadcrumb" aria-label="{{ section.settings.breadcrumb_label | escape }}">
+        <a href="{{ routes.root_url }}">{{ section.settings.home_label | escape }}</a>
+        {%- if current_collection != blank -%}
+          <span aria-hidden="true">/</span>
+          <a href="{{ current_collection.url }}">{{ current_collection.title | escape }}</a>
+        {%- endif -%}
+      </nav>
+
+      <div class="knr-product__badges">
+        <span>{{ section.settings.badge_1 | escape }}</span>
+        <span>{{ section.settings.badge_2 | escape }}</span>
+      </div>
+
+      <div class="knr-product__title-row">
+        <h1>{{ display_title | escape }}</h1>
+        <div class="knr-product__rating" aria-label="{{ section.settings.rating_label | escape }}">
+          <span aria-hidden="true">★★★★★ <em>{{ rating_score | escape }}</em></span>
+          {%- if rating_count != blank -%}
+            <small>{{ rating_count | escape }}</small>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {%- if section.settings.award_text != blank -%}
+        <p class="knr-product__award">{{ section.settings.award_text | escape }}</p>
+      {%- endif -%}
+
+      <div class="knr-product__summary rte">
+        {%- if section.settings.summary != blank -%}
+          {{ section.settings.summary }}
+        {%- elsif product.description != blank -%}
+          {{ product.description }}
+        {%- endif -%}
+      </div>
+
+      {%- form 'product', product, id: 'knr-product-form', class: 'knr-product__form' -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}" data-knr-variant-id>
+
+        <fieldset class="knr-product__variants">
+          <legend>{{ section.settings.size_label | escape }}</legend>
+          <div class="knr-product__variant-list">
+            {%- if product.has_only_default_variant -%}
+              <label class="knr-product__variant is-selected">
+                <input type="radio" name="knr_variant_fallback" checked>
+                <span>{{ section.settings.size_1 | escape }}</span>
+              </label>
+              <label class="knr-product__variant">
+                <input type="radio" name="knr_variant_fallback">
+                <span>{{ section.settings.size_2 | escape }}</span>
+              </label>
+            {%- else -%}
+              {%- for variant in product.variants -%}
+                <label class="knr-product__variant{% if variant.id == current_variant.id %} is-selected{% endif %}{% unless variant.available %} is-disabled{% endunless %}">
+                  <input
+                    type="radio"
+                    name="knr_variant"
+                    value="{{ variant.id }}"
+                    {% if variant.id == current_variant.id %}checked{% endif %}
+                    {% unless variant.available %}disabled{% endunless %}
+                    data-knr-variant-option
+                  >
+                  <span>{{ variant.title | escape }}</span>
+                </label>
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+        </fieldset>
+
+        <div class="knr-product__price" aria-live="polite">
+          <span data-knr-price>{{ display_price }}</span>
+          <s data-knr-compare-price{% unless current_variant.compare_at_price > current_variant.price %} hidden{% endunless %}>
+            {%- if section.settings.compare_override != blank -%}
+              {{ section.settings.compare_override | escape }}
+            {%- elsif current_variant.compare_at_price > current_variant.price -%}
+              {{ current_variant.compare_at_price | money }}
+            {%- endif -%}
+          </s>
+        </div>
+        {%- if section.settings.unit_price != blank -%}
+          <p class="knr-product__unit">{{ section.settings.unit_price | escape }}</p>
+        {%- endif -%}
+
+        <button
+          type="submit"
+          class="knr-product__add"
+          data-knr-add-to-cart
+          data-add-label="{{ section.settings.add_to_cart_label | escape }}"
+          data-sold-out-label="{{ section.settings.sold_out_label | escape }}"
+          {% unless current_variant.available %}disabled{% endunless %}
+        >
+          <span data-knr-add-label>
+            {%- if current_variant.available -%}
+              {{ section.settings.add_to_cart_label | escape }}
+            {%- else -%}
+              {{ section.settings.sold_out_label | escape }}
+            {%- endif -%}
+          </span>
+        </button>
+        <p class="knr-product__stock">{{ section.settings.stock_text | escape }}</p>
+        <p class="knr-product__form-message" data-knr-form-message role="status" aria-live="polite"></p>
+      {%- endform -%}
+
+      <div class="knr-product__accordions" data-knr-faq>
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'product_detail' -%}
+            <div class="knr-product__accordion" {{ block.shopify_attributes }}>
+              <button
+                type="button"
+                aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-controls="ProductDetail-{{ block.id }}"
+                data-knr-faq-trigger
+              >
+                <span>{{ block.settings.heading | escape }}</span>
+                <span aria-hidden="true">{% if forloop.first %}⌃{% else %}⌄{% endif %}</span>
+              </button>
+              <div id="ProductDetail-{{ block.id }}" class="rte" {% unless forloop.first %}hidden{% endunless %} data-knr-faq-panel>
+                {{ block.settings.text }}
+              </div>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <div class="knr-product__ritual">
+        <div class="knr-product__ritual-head">
+          <span>{{ section.settings.ritual_heading | escape }}</span>
+          <button type="button" aria-label="{{ section.settings.ritual_heading | escape }}" data-knr-ritual-next>›</button>
+        </div>
+        <div class="knr-product__ritual-grid" data-knr-ritual-carousel>
+          {%- assign ritual_rendered = 0 -%}
+          {%- if ritual_collection != blank -%}
+            {%- for ritual_product in ritual_collection.products -%}
+              {%- if ritual_product.id != product.id and ritual_rendered < 3 -%}
+                <article>
+                  <div class="knr-product__ritual-image">
+                    <a href="{{ ritual_product.url }}" aria-label="{{ ritual_product.title | escape }}">
+                      {%- if ritual_product.featured_image != blank -%}
+                        {{ ritual_product.featured_image | image_url: width: 420 | image_tag: widths: '160, 240, 320, 420', loading: 'lazy', height: nil, alt: ritual_product.featured_image.alt | default: ritual_product.title }}
+                      {%- else -%}
+                        {{ 'product-4' | placeholder_svg_tag: 'placeholder-svg' }}
+                      {%- endif -%}
+                    </a>
+                    <button type="button" aria-label="{{ section.settings.add_ritual_label | escape }}">+</button>
+                  </div>
+                  <p>{{ ritual_product.title | escape }}</p>
+                  <small>{{ ritual_product.price | money }}</small>
+                </article>
+                {%- assign ritual_rendered = ritual_rendered | plus: 1 -%}
+              {%- endif -%}
+            {%- endfor -%}
+          {%- endif -%}
+          {%- if ritual_rendered == 0 -%}
+            <article>
+              <div class="knr-product__ritual-image">
+                {{ 'product-4' | placeholder_svg_tag: 'placeholder-svg' }}
+                <button type="button" aria-label="{{ section.settings.add_ritual_label | escape }}">+</button>
+              </div>
+              <p>{{ section.settings.ritual_fallback_title | escape }}</p>
+              <small>{{ section.settings.ritual_fallback_price | escape }}</small>
+            </article>
+          {%- endif -%}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="knr-story">
+    {%- if section.settings.story_image != blank -%}
+      {{ section.settings.story_image | image_url: width: 2200 | image_tag: widths: '720, 960, 1200, 1600, 2200', loading: 'lazy', alt: section.settings.story_alt }}
+    {%- elsif gallery_image_4 != blank -%}
+      {{ gallery_image_4 | image_url: width: 2200 | image_tag: widths: '720, 960, 1200, 1600, 2200', loading: 'lazy', alt: gallery_image_4.alt | default: product.title }}
+    {%- endif -%}
+    <div class="knr-story__note">{{ section.settings.story_note | escape }}</div>
+    <div class="knr-story__copy">
+      <p>{{ section.settings.story_text | escape }}</p>
+      <small>{{ section.settings.story_credit | escape }}</small>
+    </div>
+    <div class="knr-story__upsell" aria-label="{{ product.title | escape }}">
+      <a class="knr-story__upsell-image" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+        {%- if product.featured_image != blank -%}
+          {{ product.featured_image | image_url: width: 240 | image_tag: widths: '120, 180, 240', loading: 'lazy', alt: product.featured_image.alt | default: product.title }}
+        {%- elsif gallery_image_1 != blank -%}
+          {{ gallery_image_1 | image_url: width: 240 | image_tag: widths: '120, 180, 240', loading: 'lazy', alt: gallery_image_1.alt | default: product.title }}
+        {%- endif -%}
+      </a>
+      <div class="knr-story__upsell-info">
+        <a href="{{ product.url }}">{{ display_title | escape }}</a>
+        <div class="knr-story__upsell-options">
+          {%- for variant in product.variants -%}
+            <label class="knr-story__upsell-option{% if variant.id == current_variant.id %} is-selected{% endif %}{% unless variant.available %} is-disabled{% endunless %}">
+              <input
+                type="radio"
+                name="id"
+                value="{{ variant.id }}"
+                {% if variant.id == current_variant.id %}checked{% endif %}
+                {% unless variant.available %}disabled{% endunless %}
+                data-knr-upsell-variant
+              >
+              <span>{{ variant.title | escape }}</span>
+            </label>
+          {%- endfor -%}
+        </div>
+        <span data-knr-upsell-price>{{ display_price }}</span>
+      </div>
+      {%- form 'product', product, class: 'knr-story__upsell-form' -%}
+        <input type="hidden" name="id" value="{{ current_variant.id }}" data-knr-upsell-variant-id>
+        <button type="submit">{{ section.settings.add_to_cart_label | escape }}</button>
+      {%- endform -%}
+    </div>
+  </section>
+
+  <section class="knr-howto">
+    <div class="knr-wide">
+      <h2>{{ section.settings.howto_heading | escape }}</h2>
+      <div class="knr-howto__grid">
+        <article>
+          {%- if section.settings.step_1_image != blank -%}
+            {{ section.settings.step_1_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.step_1_title }}
+          {%- elsif gallery_image_4 != blank -%}
+            {{ gallery_image_4 | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: gallery_image_4.alt | default: product.title }}
+          {%- endif -%}
+          <span>01</span>
+          <h3>{{ section.settings.step_1_title | escape }}</h3>
+          <p>{{ section.settings.step_1_text | escape }}</p>
+        </article>
+        <article>
+          {%- if section.settings.step_2_image != blank -%}
+            {{ section.settings.step_2_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.step_2_title }}
+          {%- elsif gallery_image_2 != blank -%}
+            {{ gallery_image_2 | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: gallery_image_2.alt | default: product.title }}
+          {%- endif -%}
+          <span>02</span>
+          <h3>{{ section.settings.step_2_title | escape }}</h3>
+          <p>{{ section.settings.step_2_text | escape }}</p>
+        </article>
+        <article>
+          {%- if section.settings.step_3_image != blank -%}
+            {{ section.settings.step_3_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.step_3_title }}
+          {%- endif -%}
+          <span>03</span>
+          <h3>{{ section.settings.step_3_title | escape }}</h3>
+          <p>{{ section.settings.step_3_text | escape }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="knr-results" data-knr-before-after>
+    <div class="knr-section-copy">
+      <h2>{{ section.settings.results_heading | escape }}</h2>
+      <p>{{ section.settings.results_subheading | escape }}</p>
+    </div>
+    <div class="knr-results__image">
+      {%- if section.settings.results_image != blank -%}
+        {{ section.settings.results_image | image_url: width: 2200 | image_tag: widths: '720, 960, 1200, 1600, 2200', loading: 'lazy', alt: section.settings.results_alt }}
+        <div class="knr-results__after" data-knr-after-layer aria-hidden="true">
+          {{ section.settings.results_image | image_url: width: 2200 | image_tag: widths: '720, 960, 1200, 1600, 2200', loading: 'lazy', alt: '' }}
+        </div>
+      {%- endif -%}
+      <span>{{ section.settings.before_label | escape }}</span>
+      <span>{{ section.settings.after_label | escape }}</span>
+      <button type="button" aria-label="{{ section.settings.range_label | escape }}">III</button>
+      <input class="knr-results__range" type="range" min="0" max="100" value="50" aria-label="{{ section.settings.range_label | escape }}" data-knr-before-after-range>
+    </div>
+    <div class="knr-results__quote" data-knr-review-carousel>
+      <div class="knr-results__slides" aria-live="polite">
+        {%- assign result_reviews_rendered = 0 -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'review' and result_reviews_rendered < 4 -%}
+            <figure class="knr-results__slide{% if result_reviews_rendered == 0 %} is-active{% endif %}" {% unless result_reviews_rendered == 0 %}hidden{% endunless %} data-knr-review-slide {{ block.shopify_attributes }}>
+              <figcaption aria-hidden="true">★★★★★ <span>{{ block.settings.author | escape }}</span></figcaption>
+              <blockquote>{{ block.settings.text | escape }}</blockquote>
+            </figure>
+            {%- assign result_reviews_rendered = result_reviews_rendered | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if result_reviews_rendered == 0 -%}
+          <figure class="knr-results__slide is-active" data-knr-review-slide>
+            <figcaption aria-hidden="true">★★★★★ <span>{{ section.settings.testimonial_author | escape }}</span></figcaption>
+            <blockquote>{{ section.settings.testimonial | escape }}</blockquote>
+          </figure>
+        {%- endif -%}
+      </div>
+      <div class="knr-results__arrows">
+        <button type="button" aria-label="{{ section.settings.previous_review_label | escape }}" data-knr-review-prev>‹</button>
+        <button type="button" aria-label="{{ section.settings.next_review_label | escape }}" data-knr-review-next>›</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="knr-faq knr-faq--design" data-knr-faq>
+    <div class="knr-section-copy">
+      <h2>{{ section.settings.faq_heading | escape }}</h2>
+    </div>
+    <div class="knr-faq__list">
+      {%- assign first_faq_open = false -%}
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'faq' -%}
+          {%- assign is_first_faq = false -%}
+          {%- unless first_faq_open -%}
+            {%- assign is_first_faq = true -%}
+            {%- assign first_faq_open = true -%}
+          {%- endunless -%}
+          <div class="knr-faq__item" {{ block.shopify_attributes }}>
+            <button
+              type="button"
+              class="knr-faq__question"
+              aria-expanded="{% if is_first_faq %}true{% else %}false{% endif %}"
+              aria-controls="KnrFaqPanel-{{ block.id }}"
+              data-knr-faq-trigger
+            >
+              <span>{{ block.settings.question | escape }}</span>
+              <span aria-hidden="true">{% if is_first_faq %}−{% else %}+{% endif %}</span>
+            </button>
+            <div id="KnrFaqPanel-{{ block.id }}" class="knr-faq__answer rte" {% unless is_first_faq %}hidden{% endunless %} data-knr-faq-panel>
+              {{ block.settings.answer }}
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+
+  <section class="knr-reviews">
+    <div class="knr-section-copy">
+      <h2>{{ section.settings.reviews_heading | escape }}</h2>
+    </div>
+    <div class="knr-reviews__summary">
+      <div class="knr-reviews__score" aria-label="{{ section.settings.rating_label | escape }}">
+        <div aria-hidden="true">★★★★★ <span>{{ section.settings.review_score_text | escape }}</span></div>
+        <small>{{ section.settings.review_based_text | escape }}</small>
+      </div>
+      <div class="knr-review-bars" aria-hidden="true">
+        <div class="knr-review-bars__row"><span>★★★★★</span><span class="knr-review-bars__track" style="--w: 92%"></span><span>32</span></div>
+        <div class="knr-review-bars__row"><span>★★★★☆</span><span class="knr-review-bars__track" style="--w: 78%"></span><span>10</span></div>
+        <div class="knr-review-bars__row"><span>★★★☆☆</span><span class="knr-review-bars__track" style="--w: 36%"></span><span>5</span></div>
+        <div class="knr-review-bars__row"><span>★★☆☆☆</span><span class="knr-review-bars__track" style="--w: 16%"></span><span>6</span></div>
+        <div class="knr-review-bars__row"><span>★☆☆☆☆</span><span class="knr-review-bars__track" style="--w: 6%"></span><span>1</span></div>
+      </div>
+      <div class="knr-reviews__actions">
+        <button type="button">{{ section.settings.write_review_label | escape }}</button>
+        <button type="button">{{ section.settings.ask_question_label | escape }}</button>
+      </div>
+    </div>
+    <div class="knr-reviews__filter">{{ section.settings.filter_label | escape }}</div>
+    <div class="knr-reviews__list">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'review' -%}
+          <article {{ block.shopify_attributes }}>
+            <div class="knr-reviews__list-head">
+              <div aria-hidden="true">★★★★★</div>
+              <time>{{ section.settings.review_date | escape }}</time>
+            </div>
+            <small>{{ block.settings.author | escape }} <span class="knr-reviews__verified">{{ section.settings.verified_label | escape }}</span></small>
+            <h3>{{ block.settings.title | escape }}</h3>
+            <p>{{ block.settings.text | escape }}</p>
+          </article>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+    <button class="knr-outline-button" type="button">{{ section.settings.load_more_label | escape }}</button>
+  </section>
+
+  <section class="knr-news">
+    <div class="knr-news__head">
+      <h2>{{ section.settings.news_heading | escape }}</h2>
+      <a href="{{ section.settings.blog.url | default: routes.root_url }}">{{ section.settings.view_all_label | escape }}</a>
+    </div>
+    <div class="knr-news__grid">
+      <article>
+        {%- if section.settings.news_1_image != blank -%}
+          {{ section.settings.news_1_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.news_1_title }}
+        {%- endif -%}
+        <small>{{ section.settings.news_1_category | escape }}</small>
+        <h3>{{ section.settings.news_1_title | escape }}</h3>
+        <p>{{ section.settings.news_1_text | escape }}</p>
+      </article>
+      <article>
+        {%- if section.settings.news_2_image != blank -%}
+          {{ section.settings.news_2_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.news_2_title }}
+        {%- endif -%}
+        <small>{{ section.settings.news_2_category | escape }}</small>
+        <h3>{{ section.settings.news_2_title | escape }}</h3>
+        <p>{{ section.settings.news_2_text | escape }}</p>
+      </article>
+      <article>
+        {%- if section.settings.news_3_image != blank -%}
+          {{ section.settings.news_3_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.news_3_title }}
+        {%- elsif gallery_image_2 != blank -%}
+          {{ gallery_image_2 | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: gallery_image_2.alt | default: product.title }}
+        {%- endif -%}
+        <small>{{ section.settings.news_3_category | escape }}</small>
+        <h3>{{ section.settings.news_3_title | escape }}</h3>
+        <p>{{ section.settings.news_3_text | escape }}</p>
+      </article>
+      <article>
+        {%- if section.settings.news_4_image != blank -%}
+          {{ section.settings.news_4_image | image_url: width: 1024 | image_tag: widths: '360, 540, 720, 1024', loading: 'lazy', alt: section.settings.news_4_title }}
+        {%- endif -%}
+        <small>{{ section.settings.news_4_category | escape }}</small>
+        <h3>{{ section.settings.news_4_title | escape }}</h3>
+        <p>{{ section.settings.news_4_text | escape }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="knr-newsletter">
+    {%- if section.settings.newsletter_image != blank -%}
+      {{ section.settings.newsletter_image | image_url: width: 1400 | image_tag: widths: '480, 720, 960, 1200, 1400', loading: 'lazy', alt: section.settings.newsletter_alt }}
+    {%- endif -%}
+    <div>
+      <h2>{{ section.settings.newsletter_heading | escape }}</h2>
+      {%- form 'customer', class: 'knr-newsletter__form' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <label for="KnrNewsletter-{{ section.id }}">{{ section.settings.email_label | escape }}</label>
+        <div>
+          <input id="KnrNewsletter-{{ section.id }}" type="email" name="contact[email]" placeholder="{{ section.settings.email_label | escape }}" required>
+          <button type="submit">{{ section.settings.submit_label | escape }}</button>
+        </div>
+      {%- endform -%}
+    </div>
+  </section>
+
+  <script type="application/json" data-knr-variants-json>
+    {{ product.variants | json }}
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "KNR product main",
+  "settings": [
+    { "type": "text", "id": "title_override", "label": "Title override" },
+    { "type": "text", "id": "price_override", "label": "Price override" },
+    { "type": "text", "id": "compare_override", "label": "Compare price override" },
+    { "type": "text", "id": "unit_price", "label": "Unit price", "default": "€75.00 par 100 mL" },
+    { "type": "text", "id": "home_label", "label": "Home label", "default": "Soins anti-âge" },
+    { "type": "text", "id": "breadcrumb_label", "label": "Breadcrumb label", "default": "Breadcrumb" },
+    { "type": "text", "id": "gallery_label", "label": "Gallery label", "default": "Product images" },
+    { "type": "text", "id": "product_card_label", "label": "Product card label", "default": "Product information" },
+    { "type": "text", "id": "hero_alt", "label": "Hero image alt", "default": "Maison Celestine serum bottle" },
+    { "type": "text", "id": "model_alt", "label": "Model image alt", "default": "Model applying serum" },
+    { "type": "text", "id": "roses_alt", "label": "Rose product image alt", "default": "Serum bottle with roses" },
+    { "type": "text", "id": "badge_1", "label": "Badge 1", "default": "Unifie" },
+    { "type": "text", "id": "badge_2", "label": "Badge 2", "default": "Protège" },
+    { "type": "text", "id": "rating_label", "label": "Rating label", "default": "Rated 4.7 out of 5 from 201 reviews" },
+    { "type": "text", "id": "rating_text", "label": "Rating text", "default": "4.7 · 201 avis" },
+    { "type": "text", "id": "award_text", "label": "Award text", "default": "Yuka 100/100 · INCI Beauty 20/20" },
+    { "type": "richtext", "id": "summary", "label": "Summary", "default": "<p>Une huile anti-âge sèche ultra fine qui travaille en synergie avec la peau pour la maintenir ferme, pleine de vitalité tout en lissant les rides.</p>" },
+    { "type": "text", "id": "size_label", "label": "Size label", "default": "Taille" },
+    { "type": "text", "id": "size_1", "label": "Fallback size 1", "default": "15 mL" },
+    { "type": "text", "id": "size_2", "label": "Fallback size 2", "default": "150 mL" },
+    { "type": "text", "id": "add_to_cart_label", "label": "Add to cart label", "default": "Ajouter au panier" },
+    { "type": "text", "id": "sold_out_label", "label": "Sold out label", "default": "Épuisé" },
+    { "type": "text", "id": "stock_text", "label": "Stock text", "default": "En stock, livraison estimée mercredi 25 février." },
+    { "type": "text", "id": "ritual_heading", "label": "Ritual heading", "default": "Complétez votre rituel" },
+    { "type": "collection", "id": "ritual_collection", "label": "Ritual collection" },
+    { "type": "url", "id": "ritual_link", "label": "Ritual link" },
+    { "type": "text", "id": "ritual_fallback_title", "label": "Ritual fallback title", "default": "Produit rituel" },
+    { "type": "text", "id": "ritual_fallback_price", "label": "Ritual fallback price", "default": "€60.00" },
+    { "type": "text", "id": "add_ritual_label", "label": "Add ritual label", "default": "Ajouter le produit" },
+    { "type": "text", "id": "story_alt", "label": "Story image alt", "default": "Serum dropper" },
+    { "type": "image_picker", "id": "story_image", "label": "Story image" },
+    { "type": "text", "id": "story_note", "label": "Story note", "default": "Notre engagement pour une beauté régénérée" },
+    { "type": "textarea", "id": "story_text", "label": "Story text", "default": "Fusionnant l'huile de rosier muscat, le rétinol végétal et l'extrait de cactus, notre sérum pénètre en profondeur pour stimuler le renouvellement cellulaire, atténuer les rides et redonner à la peau son éclat et sa fermeté naturels." },
+    { "type": "text", "id": "story_credit", "label": "Story credit", "default": "Sophie M." },
+    { "type": "text", "id": "howto_heading", "label": "How to heading", "default": "How to use" },
+    { "type": "image_picker", "id": "step_1_image", "label": "Step 1 image" },
+    { "type": "text", "id": "step_1_title", "label": "Step 1 title", "default": "Découvrir" },
+    { "type": "text", "id": "step_1_text", "label": "Step 1 text", "default": "Commencez du point interne, faites répéter aux propriétés anti-oxydantes." },
+    { "type": "image_picker", "id": "step_2_image", "label": "Step 2 image" },
+    { "type": "text", "id": "step_2_title", "label": "Step 2 title", "default": "Découvrir" },
+    { "type": "text", "id": "step_2_text", "label": "Step 2 text", "default": "Est un antioxydant naturel. Cible les taches et les rougeurs de la peau." },
+    { "type": "image_picker", "id": "step_3_image", "label": "Step 3 image" },
+    { "type": "text", "id": "step_3_title", "label": "Step 3 title", "default": "Découvrir" },
+    { "type": "text", "id": "step_3_text", "label": "Step 3 text", "default": "Favorise le renouvellement cellulaire et lisse les contours du visage." },
+    { "type": "text", "id": "results_heading", "label": "Results heading", "default": "Ce que disent nos clientes" },
+    { "type": "text", "id": "results_subheading", "label": "Results subheading", "default": "Des transformations visibles dès 4 semaines. Nos clientes témoignent d'une peau visiblement régénérée." },
+    { "type": "text", "id": "results_alt", "label": "Results image alt", "default": "Before and after skincare result" },
+    { "type": "image_picker", "id": "results_image", "label": "Results image" },
+    { "type": "text", "id": "before_label", "label": "Before label", "default": "Before" },
+    { "type": "text", "id": "after_label", "label": "After label", "default": "After" },
+    { "type": "text", "id": "range_label", "label": "Range label", "default": "Before after comparison" },
+    { "type": "text", "id": "testimonial_author", "label": "Testimonial author", "default": "Clara T." },
+    { "type": "textarea", "id": "testimonial", "label": "Testimonial", "default": "J'utilise ce sérum depuis trois mois et la différence est saisissante. Mes rides d'expression se sont considérablement atténuées et mon teint a retrouvé une luminosité que je n'avais plus depuis des années. Une texture soyeuse qui pénètre instantanément." },
+    { "type": "text", "id": "previous_review_label", "label": "Previous review label", "default": "Avis précédent" },
+    { "type": "text", "id": "next_review_label", "label": "Next review label", "default": "Avis suivant" },
+    { "type": "text", "id": "faq_heading", "label": "FAQ heading", "default": "Questions fréquentes" },
+    { "type": "text", "id": "reviews_heading", "label": "Reviews heading", "default": "Avis clients" },
+    { "type": "text", "id": "review_score_text", "label": "Review score text", "default": "4.7 sur 5" },
+    { "type": "text", "id": "review_based_text", "label": "Review based text", "default": "Basé sur 200 avis" },
+    { "type": "text", "id": "filter_label", "label": "Filter label", "default": "Filtrer" },
+    { "type": "text", "id": "review_date", "label": "Review date", "default": "09/02/26" },
+    { "type": "text", "id": "verified_label", "label": "Verified label", "default": "Vérifié" },
+    { "type": "text", "id": "write_review_label", "label": "Write review label", "default": "Écrire un avis" },
+    { "type": "text", "id": "ask_question_label", "label": "Ask question label", "default": "Poser une question" },
+    { "type": "text", "id": "load_more_label", "label": "Load more label", "default": "Charger plus" },
+    { "type": "text", "id": "news_heading", "label": "News heading", "default": "Latest news" },
+    { "type": "blog", "id": "blog", "label": "Blog" },
+    { "type": "text", "id": "view_all_label", "label": "View all label", "default": "Voir tous les articles" },
+    { "type": "image_picker", "id": "news_1_image", "label": "News 1 image" },
+    { "type": "text", "id": "news_1_category", "label": "News 1 category", "default": "L'origine" },
+    { "type": "text", "id": "news_1_title", "label": "News 1 title", "default": "Fondée en 2012 dans les Alpes" },
+    { "type": "textarea", "id": "news_1_text", "label": "News 1 text", "default": "Maison Celestine est née de la passion d'une dermatologue pour les principes actifs botaniques." },
+    { "type": "image_picker", "id": "news_2_image", "label": "News 2 image" },
+    { "type": "text", "id": "news_2_category", "label": "News 2 category", "default": "La formule" },
+    { "type": "text", "id": "news_2_title", "label": "News 2 title", "default": "12 ingrédients actifs sélectionnés" },
+    { "type": "textarea", "id": "news_2_text", "label": "News 2 text", "default": "Chaque ingrédient actif nourrit une dimension précise du soin." },
+    { "type": "image_picker", "id": "news_3_image", "label": "News 3 image" },
+    { "type": "text", "id": "news_3_category", "label": "News 3 category", "default": "L'expertise" },
+    { "type": "text", "id": "news_3_title", "label": "News 3 title", "default": "15 ans de recherche en lab" },
+    { "type": "textarea", "id": "news_3_text", "label": "News 3 text", "default": "Notre laboratoire indépendant teste chaque formule sur des peaux sensibles." },
+    { "type": "image_picker", "id": "news_4_image", "label": "News 4 image" },
+    { "type": "text", "id": "news_4_category", "label": "News 4 category", "default": "L'engagement" },
+    { "type": "text", "id": "news_4_title", "label": "News 4 title", "default": "97 % naturel certifié" },
+    { "type": "textarea", "id": "news_4_text", "label": "News 4 text", "default": "Écologique responsable, formule biodégradable, conservateurs naturels." },
+    { "type": "text", "id": "newsletter_alt", "label": "Newsletter image alt", "default": "Maison Celestine product lineup" },
+    { "type": "image_picker", "id": "newsletter_image", "label": "Newsletter image" },
+    { "type": "text", "id": "newsletter_heading", "label": "Newsletter heading", "default": "Sérum précieux régénérant - l'alliance de la science botanique et du luxe naturel pour une peau visiblement rajeunie en 4 semaines." },
+    { "type": "text", "id": "email_label", "label": "Email label", "default": "E-mail" },
+    { "type": "text", "id": "submit_label", "label": "Submit label", "default": "S'inscrire" }
+  ],
+  "blocks": [
+    {
+      "type": "product_detail",
+      "name": "Product detail accordion",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Description" },
+        { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Formulé à partir de 97 % d'ingrédients d'origine naturelle, ce sérum précieux active les mécanismes naturels de régénération cellulaire.</p>" }
+      ]
+    },
+    {
+      "type": "faq",
+      "name": "FAQ item",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "Comment utiliser ?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Appliquez 3 à 5 gouttes le soir sur visage et cou parfaitement nettoyés.</p>" }
+      ]
+    },
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Avis complet" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Maison Celestine est une marque de soin anti-âge haut de gamme formulée avec des actifs rares." },
+        { "type": "text", "id": "author", "label": "Author", "default": "Mathilde" }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "KNR product main" }
+  ]
+}
+{% endschema %}

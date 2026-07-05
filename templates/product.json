@@ -1,0 +1,154 @@
+{
+  "sections": {
+    "announcement": {
+      "type": "knr-announcement-bar",
+      "settings": {
+        "text": "Livraison estimée sous 48h consectetur."
+      }
+    },
+    "header": {
+      "type": "knr-header",
+      "settings": {
+        "logo": "shopify://shop_images/maison-celestine-logo-white.png",
+        "brand_text": "maison célestine",
+        "menu": "main-menu",
+        "use_custom_links": true,
+        "link_1_label": "Produits",
+        "link_1_url": "/collections/collection-cactus",
+        "link_2_label": "Diagnostique",
+        "link_2_url": "/pages/diagnostique",
+        "link_3_label": "La marque",
+        "link_3_url": "/pages/la-marque",
+        "link_4_label": "Journal",
+        "link_4_url": "/blogs/news",
+        "cart_label": ""
+      }
+    },
+    "main": {
+      "type": "knr-product-main",
+      "blocks": {
+        "detail_description": {
+          "type": "product_detail",
+          "settings": {
+            "heading": "Description",
+            "text": "<p>Formulé à partir de 97 % d'ingrédients d'origine naturelle, ce sérum précieux active les mécanismes naturels de régénération cellulaire.</p>"
+          }
+        },
+        "detail_benefits": {
+          "type": "product_detail",
+          "settings": {
+            "heading": "Bienfaits",
+            "text": "<p>Lisse visiblement les rides, unifie le teint et ravive l'éclat naturel de la peau.</p>"
+          }
+        },
+        "detail_ingredients": {
+          "type": "product_detail",
+          "settings": {
+            "heading": "Ingrédients clés",
+            "text": "<p>Huile de rosier muscat, rétinol végétal, extrait de cactus et actifs botaniques sélectionnés.</p>"
+          }
+        },
+        "detail_skin": {
+          "type": "product_detail",
+          "settings": {
+            "heading": "Adapté aux peaux",
+            "text": "<p>Convient aux peaux normales, sèches et matures. Testé sous contrôle dermatologique.</p>"
+          }
+        },
+        "faq_1": {
+          "type": "faq",
+          "settings": {
+            "question": "Comment utiliser ?",
+            "answer": "<p>Appliquez 3 à 5 gouttes le soir sur visage et cou parfaitement nettoyés. Massez délicatement en mouvements ascendants.</p>"
+          }
+        },
+        "faq_2": {
+          "type": "faq",
+          "settings": {
+            "question": "Quand voir les effets ?",
+            "answer": "<p>Les premiers résultats apparaissent généralement après quelques semaines d'utilisation régulière.</p>"
+          }
+        },
+        "faq_3": {
+          "type": "faq",
+          "settings": {
+            "question": "Convient-il à tous ?",
+            "answer": "<p>La formule est pensée pour les peaux sensibles, mais un test local est recommandé.</p>"
+          }
+        },
+        "faq_4": {
+          "type": "faq",
+          "settings": {
+            "question": "Est-il naturel ?",
+            "answer": "<p>La formule contient 97 % d'ingrédients d'origine naturelle.</p>"
+          }
+        },
+        "faq_5": {
+          "type": "faq",
+          "settings": {
+            "question": "Peut-on l'associer ?",
+            "answer": "<p>Oui, il peut être intégré à une routine hydratante et protectrice.</p>"
+          }
+        },
+        "review_1": {
+          "type": "review",
+          "settings": {
+            "title": "Après usage de 3 mois",
+            "text": "J'utilise ce sérum depuis trois mois et la différence est saisissante. Mes rides d'expression se sont considérablement atténuées et mon teint a retrouvé une luminosité que je n'avais plus depuis des années. Une texture soyeuse qui pénètre instantanément.",
+            "author": "Clara T."
+          }
+        },
+        "review_2": {
+          "type": "review",
+          "settings": {
+            "title": "Après usage d'1 mois",
+            "text": "Ma peau paraît plus régulière et plus souple. Le fini est sec, très confortable, et le parfum reste discret. C'est devenu l'étape que je ne saute plus dans ma routine du soir.",
+            "author": "Mathilde S."
+          }
+        },
+        "review_3": {
+          "type": "review",
+          "settings": {
+            "title": "Après usage de 6 semaines",
+            "text": "Le sérum pénètre vite et laisse un éclat naturel sans film gras. Les zones de sécheresse sont beaucoup moins visibles et le maquillage tient mieux toute la journée.",
+            "author": "Sophie M."
+          }
+        }
+      },
+      "block_order": [
+        "detail_description",
+        "detail_benefits",
+        "detail_ingredients",
+        "detail_skin",
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4",
+        "faq_5",
+        "review_1",
+        "review_2",
+        "review_3"
+      ],
+      "settings": {
+        "ritual_collection": "collection-cactus",
+        "story_image": "shopify://shop_images/maison-celestine-dropper-story.webp",
+        "step_1_image": "shopify://shop_images/maison-celestine-howto-step-1-correct.png",
+        "step_2_image": "shopify://shop_images/maison-celestine-model-face.webp",
+        "step_3_image": "shopify://shop_images/maison-celestine-howto-apply.webp",
+        "results_image": "shopify://shop_images/maison-celestine-before-after.webp",
+        "news_1_image": "shopify://shop_images/maison-celestine-news-application.webp",
+        "news_2_image": "shopify://shop_images/maison-celestine-news-roses.webp",
+        "news_3_image": "shopify://shop_images/maison-celestine-model-face.webp",
+        "news_4_image": "shopify://shop_images/maison-celestine-dropper-story.webp",
+        "newsletter_image": "shopify://shop_images/maison-celestine-product-lineup.webp"
+      }
+    },
+    "footer": {
+      "type": "knr-footer",
+      "settings": {
+        "brand_text": "maison célestine"
+      }
+    }
+  },
+  "order": ["announcement", "header", "main", "footer"]
+}

@@ -1,0 +1,95 @@
+<section class="knr-latest-news">
+  <div class="knr-shell">
+    <div class="knr-section-heading knr-section-heading--split">
+      <div>
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="knr-eyebrow">{{ section.settings.eyebrow | escape }}</p>
+        {%- endif -%}
+        <h2>{{ section.settings.heading | escape }}</h2>
+      </div>
+      {%- if section.settings.blog != blank -%}
+        <a href="{{ section.settings.blog.url }}" class="knr-text-link">{{ section.settings.view_all_label | escape }}</a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.blog != blank and section.settings.blog.articles_count > 0 -%}
+      <div class="knr-latest-news__grid">
+        {%- for article in section.settings.blog.articles limit: section.settings.article_limit -%}
+          <article class="knr-latest-news__card">
+            <a href="{{ article.url }}" class="knr-latest-news__image-link" aria-label="{{ article.title | escape }}">
+              {%- if article.image != blank -%}
+                {{ article.image | image_url: width: 720 | image_tag: loading: 'lazy', class: 'knr-latest-news__image', alt: article.image.alt | default: article.title }}
+              {%- else -%}
+                {{ 'image' | placeholder_svg_tag: 'knr-latest-news__placeholder' }}
+              {%- endif -%}
+            </a>
+            <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: section.settings.date_format }}</time>
+            <h3><a href="{{ article.url }}">{{ article.title | escape }}</a></h3>
+            {%- if article.excerpt_or_content != blank -%}
+              <p>{{ article.excerpt_or_content | strip_html | truncate: 120 }}</p>
+            {%- endif -%}
+          </article>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <p class="knr-latest-news__empty">{{ section.settings.empty_text | escape }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "KNR latest news",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Journal"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Latest news"
+    },
+    {
+      "type": "blog",
+      "id": "blog",
+      "label": "Blog"
+    },
+    {
+      "type": "range",
+      "id": "article_limit",
+      "label": "Articles to show",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all label",
+      "default": "View all"
+    },
+    {
+      "type": "text",
+      "id": "date_format",
+      "label": "Date format",
+      "default": "%B %d, %Y"
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Empty text",
+      "default": "Select a blog to show recent articles."
+    }
+  ],
+  "presets": [
+    {
+      "name": "KNR latest news"
+    }
+  ]
+}
+{% endschema %}
